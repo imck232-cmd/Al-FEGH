@@ -48,7 +48,14 @@ const App: React.FC = () => {
       }
     } catch (err) {
       console.error(err);
-      setError("حدث خطأ أثناء جلب الإجابة. الرجاء المحاولة مرة أخرى.");
+      let errorMessage = "حدث خطأ أثناء جلب الإجابة. الرجاء المحاولة مرة أخرى.";
+      if (err instanceof Error) {
+        // Provide a more specific error message for developers running the app locally
+        if (err.message.toLowerCase().includes('api key') || err.message.toLowerCase().includes('configured')) {
+          errorMessage = "خطأ في التكوين: لم يتم العثور على مفتاح API أو أنه غير صالح. يرجى التأكد من إعداد متغير بيئة API_KEY بشكل صحيح لتشغيل التطبيق محليًا.";
+        }
+      }
+      setError(errorMessage);
       setFiqhResponse(null); // Clear response on error
     } finally {
       setIsLoading(false);
