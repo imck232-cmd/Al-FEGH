@@ -1,10 +1,11 @@
+
 import React, { useState, useCallback, useRef } from 'react';
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import ResponseDisplay from './components/ResponseDisplay';
 import Footer from './components/Footer';
 import { getFiqhAnswer } from './services/geminiService';
-import type { FiqhResponse } from './types';
+import type { FiqhResponse, GroundingSource } from './types';
 
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -17,46 +18,42 @@ const App: React.FC = () => {
       setError("الرجاء إدخال سؤال فقهي.");
       return;
     }
+    
     setIsLoading(true);
-    // Initialize with an empty state to begin streaming into
     setFiqhResponse({ text: '', sources: [] });
     setError(null);
 
     try {
+      let currentText = '';
+      const sourcesMap = new Map<string, GroundingSource>();
+
       for await (const result of getFiqhAnswer(question)) {
         if (result.textChunk) {
-          setFiqhResponse(prev => {
-            // Ensure prev is not null, which it shouldn't be due to initialization
-            const currentText = prev ? prev.text : '';
-            const currentSources = prev ? prev.sources : [];
-            return {
-              text: currentText + result.textChunk,
-              sources: currentSources
-            };
-          });
+          currentText += result.textChunk;
+          setFiqhResponse(prev => ({
+            text: currentText,
+            sources: prev ? prev.sources : []
+          }));
         }
+        
         if (result.sources) {
-          setFiqhResponse(prev => {
-            // Ensure prev is not null
-            const currentText = prev ? prev.text : '';
-            return {
-              text: currentText,
-              sources: result.sources || [],
-            };
+          result.sources.forEach(source => {
+            if (source.uri) sourcesMap.set(source.uri, source);
           });
+          
+          setFiqhResponse(prev => ({
+            text: currentText,
+            sources: Array.from(sourcesMap.values())
+          }));
         }
       }
     } catch (err) {
       console.error(err);
       let errorMessage = "حدث خطأ أثناء جلب الإجابة. الرجاء المحاولة مرة أخرى.";
       if (err instanceof Error) {
-        // Provide a more specific error message for developers running the app locally
-        if (err.message.toLowerCase().includes('api key') || err.message.toLowerCase().includes('configured')) {
-          errorMessage = "خطأ في التكوين: لم يتم العثور على مفتاح API أو أنه غير صالح. يرجى التأكد من إعداد متغير بيئة API_KEY بشكل صحيح لتشغيل التطبيق محليًا.";
-        }
+        errorMessage = err.message;
       }
       setError(errorMessage);
-      setFiqhResponse(null); // Clear response on error
     } finally {
       setIsLoading(false);
     }
