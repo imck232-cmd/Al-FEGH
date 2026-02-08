@@ -53,13 +53,23 @@ const ResponseDisplay: React.FC<ResponseDisplayProps> = ({ isLoading, response, 
       <div className="absolute top-4 left-4 z-10">
          <ExportButtons content={response.text} responseRef={responseRef} />
       </div>
-      <div ref={responseRef} className="prose prose-invert max-w-none prose-h3:text-teal-400 prose-h3:border-b prose-h3:border-gray-600 prose-h3:pb-2 prose-table:border prose-table:border-gray-600 prose-th:bg-gray-700 prose-th:p-3 prose-td:p-3 prose-blockquote:border-r-4 prose-blockquote:border-teal-500 prose-blockquote:pr-4 prose-a:text-cyan-400 hover:prose-a:text-cyan-300">
+      <div 
+        ref={responseRef} 
+        className="prose prose-invert max-w-none text-white 
+                   prose-headings:text-white prose-p:text-white prose-strong:text-white 
+                   prose-li:text-white prose-td:text-white prose-th:text-white
+                   prose-h3:border-b prose-h3:border-gray-600 prose-h3:pb-2 
+                   prose-table:border prose-table:border-gray-600 prose-th:bg-gray-700 
+                   prose-th:p-3 prose-td:p-3 prose-blockquote:border-r-4 
+                   prose-blockquote:border-teal-500 prose-blockquote:pr-4 
+                   prose-a:text-cyan-400 hover:prose-a:text-cyan-300"
+      >
         <ReactMarkdown remarkPlugins={[remarkGfm]}>{response.text}</ReactMarkdown>
       </div>
       
       {response.sources && response.sources.length > 0 && (
         <div className="mt-8 pt-4 border-t border-gray-600">
-          <h3 className="text-xl font-bold text-teal-400 mb-3">المصادر التي تم الرجوع إليها:</h3>
+          <h3 className="text-xl font-bold text-white mb-3">المصادر التي تم الرجوع إليها:</h3>
           <ul className="list-disc pr-5 space-y-2">
             {response.sources.map((source, index) => (
               <li key={index}>
