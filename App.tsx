@@ -27,7 +27,8 @@ const App: React.FC = () => {
       let currentText = '';
       const sourcesMap = new Map<string, GroundingSource>();
 
-      for await (const result of getFiqhAnswer(question)) {
+      const stream = getFiqhAnswer(question);
+      for await (const result of stream) {
         if (result.textChunk) {
           currentText += result.textChunk;
           setFiqhResponse(prev => ({
@@ -47,13 +48,9 @@ const App: React.FC = () => {
           }));
         }
       }
-    } catch (err) {
-      console.error(err);
-      let errorMessage = "حدث خطأ أثناء جلب الإجابة. الرجاء المحاولة مرة أخرى.";
-      if (err instanceof Error) {
-        errorMessage = err.message;
-      }
-      setError(errorMessage);
+    } catch (err: any) {
+      console.error("App Error Handler:", err);
+      setError(err.message || "حدث خطأ غير متوقع.");
     } finally {
       setIsLoading(false);
     }
