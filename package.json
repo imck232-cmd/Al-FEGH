@@ -1,12 +1,13 @@
 {
-  "name": "22-رفيقك-في-الأسئلة-والاستفسارات-الفقهية",
+  "name": "رفيقك-في-الأسئلة-والاستفسارات-الفقهية",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "react": "^19.2.0",

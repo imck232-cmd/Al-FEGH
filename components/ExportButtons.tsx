@@ -74,7 +74,7 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ content, responseRef }) =
   const buttonClass = "flex items-center gap-2 p-2 rounded-md bg-gray-700 hover:bg-teal-600 transition-colors shadow-md";
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-row gap-2">
       <button onClick={handleCopy} className={buttonClass} title="نسخ النص">
         {copied ? <Check size={18} className="text-green-400" /> : <Copy size={18} />}
         <span className="sr-only">نسخ النص</span>

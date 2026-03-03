@@ -23,34 +23,78 @@
         width: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: #f1f1f1;
+        background: #1f2937;
       }
       ::-webkit-scrollbar-thumb {
-        background: #888;
+        background: #4b5563;
         border-radius: 4px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #555;
+        background: #6b7280;
       }
+      
+      /* Markdown and Table Styling */
       .prose table {
         width: 100%;
         direction: rtl;
         text-align: right;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+        color: white !important;
+        border: 1px solid #4b5563 !important;
+      }
+      
+      .prose th {
+        color: #fbbf24 !important; /* yellow-400 */
+        background-color: #374151 !important; /* gray-700 */
+        padding: 0.75rem !important;
+        font-weight: 700 !important;
+        border: 1px solid #4b5563 !important;
+      }
+      
+      .prose td {
+        color: white !important;
+        padding: 0.75rem !important;
+        border: 1px solid #4b5563 !important;
+      }
+
+      /* Madhahib and Adilla styling */
+      .prose strong {
+        color: #f97316 !important; /* orange-500 */
+        font-weight: 700;
+      }
+
+      .prose h3 {
+        color: #2dd4bf !important; /* teal-400 */
+        border-bottom: 2px solid #374151;
+        padding-bottom: 0.5rem;
+        margin-top: 2.5rem !important;
+        margin-bottom: 1.25rem !important;
+      }
+
+      .prose p {
+        margin-bottom: 1.25rem !important;
+        line-height: 1.8;
+      }
+
+      /* Prevent overlap and ensure clean layout */
+      .response-area {
+        scrollbar-gutter: stable;
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.545.0",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.23.0",
-    "react-markdown": "https://aistudiocdn.com/react-markdown@^10.1.0",
-    "remark-gfm": "https://aistudiocdn.com/remark-gfm@^4.0.1"
-  }
-}
-</script>
+    <script type="importmap">
+    {
+      "imports": {
+        "react/": "https://aistudiocdn.com/react@^19.2.0/",
+        "react": "https://aistudiocdn.com/react@^19.2.0",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+        "lucide-react": "https://aistudiocdn.com/lucide-react@^0.545.0",
+        "@google/genai": "https://aistudiocdn.com/@google/genai@^1.23.0",
+        "react-markdown": "https://aistudiocdn.com/react-markdown@^10.1.0",
+        "remark-gfm": "https://aistudiocdn.com/remark-gfm@^4.0.1"
+      }
+    }
+    </script>
 </head>
   <body>
     <div id="root"></div>
