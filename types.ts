@@ -22,3 +22,10 @@ export interface FiqhStreamChunk {
   textChunk?: string;
   sources?: GroundingSource[];
 }
+
+export interface ArchiveItem {
+  id: string;
+  question: string;
+  response: FiqhResponse;
+  timestamp: string;
+}

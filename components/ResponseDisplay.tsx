@@ -10,16 +10,36 @@ interface ResponseDisplayProps {
   response: FiqhResponse | null;
   error: string | null;
   responseRef: React.RefObject<HTMLDivElement>;
+  viewMode: 'short' | 'detailed';
 }
 
-const ResponseDisplay: React.FC<ResponseDisplayProps> = ({ isLoading, response, error, responseRef }) => {
+const ResponseDisplay: React.FC<ResponseDisplayProps> = ({ isLoading, response, error, responseRef, viewMode }) => {
+  // Helper to extract content based on markers
+  const getDisplayContent = (text: string) => {
+    if (viewMode === 'detailed') {
+      // Return everything but strip the markers themselves
+      return text
+        .replace(/\[START_SHORT_ANSWER\]/g, '')
+        .replace(/\[END_SHORT_ANSWER\]/g, '')
+        .replace(/\[START_DETAILED_ANSWER\]/g, '')
+        .replace(/\[END_DETAILED_ANSWER\]/g, '');
+    } else {
+      // Extract only the short answer part
+      const match = text.match(/\[START_SHORT_ANSWER\]([\s\S]*?)\[END_SHORT_ANSWER\]/);
+      if (match) return match[1];
+      
+      // Fallback: if markers aren't complete yet (during streaming), show what we have
+      return text.replace(/\[START_SHORT_ANSWER\]/g, '').replace(/\[END_SHORT_ANSWER\]/g, '');
+    }
+  };
+
   // Show loader only when loading and no text has arrived yet.
   if (isLoading && (!response || !response.text)) {
     return (
-      <div className="flex-grow flex flex-col items-center justify-center text-center p-8 bg-gray-800/50 rounded-lg shadow-inner">
-        <LoaderCircle className="w-16 h-16 text-teal-400 animate-spin mb-4" />
-        <p className="text-xl text-gray-300">جاري البحث وتحليل المعلومات...</p>
-        <p className="text-gray-400">قد يستغرق هذا بعض الوقت، شكرًا لصبركم.</p>
+      <div className="flex-grow flex flex-col items-center justify-center text-center p-12 bg-gray-800/50 rounded-2xl shadow-inner border border-gray-700/50">
+        <LoaderCircle className="w-16 h-16 text-teal-400 animate-spin mb-6" />
+        <p className="text-2xl font-bold text-gray-200 mb-2">جاري البحث وتحليل المعلومات...</p>
+        <p className="text-teal-400/80 animate-pulse">يرجى الانتظار حتى إتمام البحث.</p>
       </div>
     );
   }
@@ -57,8 +77,19 @@ const ResponseDisplay: React.FC<ResponseDisplayProps> = ({ isLoading, response, 
       </div>
 
       <div className="flex-grow overflow-y-auto p-4 md:p-8">
-        <div ref={responseRef} className="prose prose-invert max-w-none markdown-body prose-h3:text-teal-400 prose-h3:border-b prose-h3:border-gray-600 prose-h3:pb-2 prose-table:border prose-table:border-gray-600 prose-th:bg-gray-700 prose-th:p-3 prose-td:p-3 prose-blockquote:border-r-4 prose-blockquote:border-teal-500 prose-blockquote:pr-4 prose-a:text-cyan-400 hover:prose-a:text-cyan-300">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{response.text}</ReactMarkdown>
+        <div ref={responseRef} className="prose prose-invert max-w-none markdown-body 
+          prose-h1:text-3xl prose-h1:font-black prose-h1:text-teal-300 prose-h1:border-b-2 prose-h1:border-teal-500/30 prose-h1:pb-4 prose-h1:mb-8
+          prose-h2:text-2xl prose-h2:font-bold prose-h2:text-teal-400 prose-h2:border-b prose-h2:border-gray-700 prose-h2:pb-3 prose-h2:mt-10 prose-h2:mb-6
+          prose-h3:text-xl prose-h3:font-bold prose-h3:text-cyan-400 prose-h3:mt-8 prose-h3:mb-4
+          prose-table:border prose-table:border-gray-700 prose-table:rounded-xl prose-table:overflow-hidden prose-table:text-sm md:prose-table:text-base
+          prose-th:bg-gray-800 prose-th:text-teal-300 prose-th:p-3 md:prose-th:p-4 prose-th:text-center prose-th:font-bold
+          prose-td:p-3 md:prose-td:p-4 prose-td:border-t prose-td:border-gray-700/50 prose-td:text-center prose-td:leading-relaxed
+          prose-blockquote:border-r-4 prose-blockquote:border-emerald-500 prose-blockquote:bg-emerald-500/10 prose-blockquote:py-3 prose-blockquote:pr-6 prose-blockquote:italic prose-blockquote:text-emerald-300 prose-blockquote:rounded-l-lg prose-blockquote:my-6
+          prose-strong:text-orange-400 prose-strong:font-bold
+          prose-a:text-cyan-400 hover:prose-a:text-cyan-300 transition-colors">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {getDisplayContent(response.text)}
+          </ReactMarkdown>
         </div>
         
         {response.sources && response.sources.length > 0 && (
