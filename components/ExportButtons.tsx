@@ -30,33 +30,83 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ content, responseRef }) =
   const handleWhatsAppShare = () => {
     if (!content) return;
 
-    const disclaimer = `⚠️ *تنبيه مهم إخلاء للمسؤولية* ⚠️\n\n1️⃣ الإجابات قد تكون غير دقيقة في بعض الأوقات ولذا يرجى التأكد وعدم الاعتماد الكلي على البرنامج.\n2️⃣ البرنامج للعلم فقط ولا يصح الاعتماد عليه في الفتوى أو الأخذ به كفتوى بل تؤخذ الفتوى من العلماء لا من المواقع والبرامج.\n\n--------------------------\n\n`;
-    const footer = `\n\n--------------------------\n✨ *منقول من برنامج رفيقك في الأسئلة والاستفسارات الفقهية، نرجو منكم دعوة خاصة صادقة* ✨`;
+    const disclaimer = `⚠️ *تنبيه مهم إخلاء للمسؤولية* ⚠️\n\n1️⃣ الإجابات قد تكون غير دقيقة في بعض الأوقات ولذا يرجى التأكد وعدم الاعتماد الكلي على البرنامج.\n2️⃣ البرنامج للعلم فقط ولا يصح الاعتماد عليه في الفتوى أو الأخذ به كفتوى بل تؤخذ الفتوى من العلماء لا من المواقع والبرامج.\n\n━━━━━━━━━━━━━━━\n\n`;
+    const footer = `\n\n━━━━━━━━━━━━━━━\n✨ *منقول من برنامج رفيقك في الأسئلة والاستفسارات الفقهية، نرجو منكم دعوة خاصة صادقة* ✨`;
     
     // Clean and format content for WhatsApp
-    let textToShare = cleanContent(content);
-    
-    // WhatsApp formatting: 
-    // *bold* for headings and bold text
-    // _italic_ for blockquotes and italic text
-    let formatted = textToShare
-      .replace(/#{1,6}\s+(.*)/g, '*$1*') // Headings to bold
-      .replace(/\*\*(.*?)\*\*/g, '*$1*') // Bold to bold
-      .replace(/>\s+(.*)/g, '_$1_');     // Blockquotes to italic
+    const textToShare = cleanContent(content);
+    const lines = textToShare.split('\n');
+    const formattedLines: string[] = [];
+    let inTable = false;
 
-    const fullMessage = disclaimer + formatted + footer;
-    
-    // Use api.whatsapp.com/send which is often more reliable for long messages
-    // and handle potential URI length issues by checking if it's extremely long
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      // Handle Tables (convert to school: ruling format)
+      if (line.startsWith('|')) {
+        if (line.includes('---|') || line.includes(':---|')) {
+          continue; // Skip separator line
+        }
+        
+        const rowData = line.split('|').map(d => d.trim()).filter(d => d !== '');
+        // Check if it's a header row or data row
+        if (rowData.length >= 2) {
+          if (!inTable) {
+            inTable = true;
+            formattedLines.push(`\n📋 *خلاصة الأحكام:*`);
+          }
+          // Skip the header row if it contains "المذهب"
+          if (rowData[0].includes('المذهب')) continue;
+          
+          formattedLines.push(`📍 *${rowData[0]}*: ${rowData[1]}`);
+        }
+        continue;
+      } else {
+        if (inTable) {
+          inTable = false;
+          formattedLines.push(''); 
+        }
+      }
+
+      // Handle Headings with Emojis
+      if (line.startsWith('###')) {
+        const title = line.replace('###', '').trim();
+        let emoji = '💠';
+        if (title.includes('المقدمة')) emoji = '📚';
+        if (title.includes('نصوص')) emoji = '📖';
+        if (title.includes('خلاصة')) emoji = '⚖️';
+        if (title.includes('الأدلة')) emoji = '🛡️';
+        if (title.includes('التفصيل')) emoji = '🖋️';
+        if (title.includes('الخاتمة')) emoji = '🏁';
+        formattedLines.push(`\n${emoji} *${title}*`);
+      } else if (line.startsWith('##')) {
+        formattedLines.push(`\n🔸 *${line.replace('##', '').trim()}*`);
+      } else if (line.startsWith('#')) {
+        formattedLines.push(`\n👑 *${line.replace('#', '').trim()}*`);
+      } else if (line.startsWith('>')) {
+        // Blockquotes (Verses/Hadiths)
+        formattedLines.push(`_“${line.replace('>', '').trim()}”_`);
+      } else if (line.startsWith('-')) {
+        formattedLines.push(`• ${line.replace('-', '').trim()}`);
+      } else if (line.match(/^\d+\./)) {
+        formattedLines.push(`✅ ${line}`);
+      } else if (line !== '') {
+        // Regular text with bold conversion
+        const formattedLine = line.replace(/\*\*(.*?)\*\*/g, '*$1*');
+        formattedLines.push(formattedLine);
+      } else {
+        formattedLines.push('');
+      }
+    }
+
+    const fullMessage = disclaimer + formattedLines.join('\n') + footer;
     const encodedMessage = encodeURIComponent(fullMessage);
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
     
-    // Open in a new window/tab
     const win = window.open(whatsappUrl, '_blank');
     if (win) {
       win.focus();
     } else {
-      // Fallback if popup is blocked
       window.location.href = whatsappUrl;
     }
   };
